@@ -61,15 +61,16 @@ PACKAGES="$PACKAGES openssh-sftp-server"
 PACKAGES="$PACKAGES luci-i18n-filemanager-zh-cn"
 
 # SNMPD (用于爱快等设备添加第三层管理)
-PACKAGES="$PACKAGES snmpd luci-app-snmpd"
+# 注意: 官方源无独立 snmpd 包, 只有 snmpd-ssl / snmpd-nossl (Provides: snmpd)
+PACKAGES="$PACKAGES snmpd-ssl luci-app-snmpd"
 
 # ======== shell/apk-custom-packages.sh =======
 # 合并imm仓库以外的第三方插件（由工作流动态生成）
 PACKAGES="$PACKAGES $CUSTOM_PACKAGES"
 
-# 修复passwall依赖: 当选择passwall时自动添加缺失的依赖
-if echo "$PACKAGES" | grep -q "luci-app-passwall"; then
-    echo "✅ 检测到 passwall，添加缺失依赖..."
+# 修复passwall依赖: 仅精确匹配 luci-app-passwall, 避免误匹配 passwall2
+if echo "$PACKAGES" | grep -qw "luci-app-passwall"; then
+    echo "✅ 检测到 passwall，确认基础依赖..."
     if ! echo "$PACKAGES" | grep -q "xray-core"; then
         PACKAGES="$PACKAGES xray-core"
     fi
